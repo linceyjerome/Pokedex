@@ -1,0 +1,15 @@
+{
+    "name": "pokedex",
+    "version": "1.0.0",
+    "description": "Exercice - Pokedex",
+    "main": "index.html",
+    "scripts": {
+        "start": "serve"
+    },
+    "keywords": [],
+    "license": "MIT",
+    "devDependencies": {
+        "serve": "^11.3.0"
+    },
+    "dependencies": {}
+}

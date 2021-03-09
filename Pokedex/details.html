@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Détails d'un pokemon</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://unpkg.com/vue"></script>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/index.html">Pokedex</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </nav>
+    <div class="container-fluid" style="padding-top: 10px;" id="app">
+        <ul>
+            <li>Name: <span>{{Pokemon.Name}}</span></li>
+            <li>HP: <span>{{Pokemon.HP}}</span></li>
+            <li>Attack: <span>{{Pokemon.Attack}}</span></li>
+            <li>Color: <span>{{Pokemon.Color}}</span></li>
+            <li>Defense: <span>{{Pokemon.Defense}}</span></li>
+            <li>Height: <span>{{Pokemon.Height}}</span></li>
+            <li>SpecialAttack: <span>{{Pokemon.SpecialAttack}}</span></li>
+            <li>SpecialDefense: <span>{{Pokemon.SpecialDefense}}</span></li>
+            <li>Speed: <span>{{Pokemon.Speed}}</span></li>
+            <li>Weight: <span>{{Pokemon.Weight}}</span></li>
+            <li>ImgURL: <img v-bind:src="Pokemon.ImgURL" /></li>
+            <li>
+                CryURL:<audio controls>
+                    <source v-bind:src="Pokemon.CryURL" type="audio/ogg">
+                </audio>
+            </li>
+            <li>Habitat.Name: <span>{{Pokemon.Habitat.Name}}</span></li>
+            <li>Species.Name: <span>{{Pokemon.Species.Name}}</span></li>
+
+            <div v-if="Pokemon.Evolution == null">
+                <li>no evolution after</li>
+            </div>
+            <div v-else>
+                <li>Evolution.Name: <span>{{Pokemon.Evolution.Name}}</span></li>
+                <li><img v-bind:src="Pokemon.Evolution.ThumbURL" /></li>
+
+                <div V-if="Pokemon.Evolution.Evolution == null">
+                    <li>no evolution after</li>
+                </div>
+                
+                <div v-else>
+                    <li>Evolution.Evolution.Name: <span>{{Pokemon.Evolution.Evolution.Name}}</span></li>
+                    <li><img v-bind:src="Pokemon.Evolution.Evolution.ThumbURL" /></li>
+                </div>
+            </div>
+        </ul>
+    </div>
+    <script>
+        let App = new Vue({
+            el: '#app',   
+            data: function () { 
+                return {
+                    Pokemon: null
+                }
+            },
+            methods: {
+                //Met à jour les données de la propriété data.Pokemons
+                RefreshDataPokemon: function () {
+                    let urlParams = new URLSearchParams(window.location.search);
+                    let PokemonId = 1;
+                    if (urlParams.has('PokemonId')) {
+                        PokemonId = urlParams.get('PokemonId');
+                    }
+                    console.log(`PokemonId: ${PokemonId}`);
+
+                    fetch(`http://pokedexapi.sv55.cmaisonneuve.qc.ca/api/pokemon?id=${PokemonId}`)
+                        .then((response) => {
+                            if (!response.ok) {
+                                console.log(`response.status: ${response.status}`);
+                                console.log(`response: ${response}`);
+                            }
+                            return response.json();
+                        }).then((data) => {
+                            console.log(data);
+                            this.Pokemon = data;
+                        });
+                },
+            },
+            mounted: function () {
+                this.RefreshDataPokemon();
+            }
+        });
+    </script>
+</body>
+
+</html>

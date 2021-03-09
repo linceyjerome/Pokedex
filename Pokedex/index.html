@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pokedex</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/vue"></script>
+        <style>
+            a:link {
+                color: black;
+                text-decoration: none;
+            }
+
+            /* visited link */
+            a:visited {
+                color: black;
+                text-decoration: none;
+            }
+
+            /* mouse over link */
+            a:hover {
+                color: black;
+                text-decoration: none;
+            }
+
+            /* selected link */
+            a:active {
+                color: black;
+                text-decoration: none;
+            }
+        </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/index.html">Pokedex</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </nav>
+    <div class="container-fluid" style="padding-top: 10px;" id="app">
+        <div class="mb-4">
+            <div class="form-inline">
+                <div class="form-group" style="padding-right:10px;">
+                    <label for="habitat" style="padding-right:10px;">Habitat:</label>
+                    <select class="form-control" id="habitat" style="min-width:200px;" v-on:change="RefreshDataPokemons">
+                        <option></option>
+                        <option v-for="h in Habitats" v-bind:value="h.HabitatId">{{h.Name}}</option>
+                    </select>
+                </div>
+                <div class="form-group" style="padding-right:10px;">
+                    <label for="species" style="padding-right:10px;">Species:</label>
+                    <select class="form-control" id="species" style="min-width:200px;" v-on:change="RefreshDataPokemons">
+                        <option></option>
+                        <option v-for="s in Species" v-bind:value="s.SpeciesId">{{s.Name}}</option>
+                    </select>
+                </div>
+                <div class="form-group" style="padding-right:10px;">
+                    <label for="poketype" style="padding-right:10px;">Poketypes:</label>
+                    <select class="form-control" id="poketypes" style="min-width:200px;" v-on:change="RefreshDataPokemons">
+                        <option></option>
+                        <option v-for="t in PokeTypes" v-bind:value="t.PokeTypeId">{{t.Name}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div v-for ="p in Pokemons">
+                <div class="col-12 mb-4">
+                    <a  v-bind:href="'/details?PokemonId=' + p.PokemonId">
+                        <div class="card rounded" v-bind:style="'background-color:' + p.Color">
+                            <img class="card-img-top" v-bind:src="p.ImgURL" v-bind:alt="p.Name" />
+                            <div class="card-body text-center">
+                                <h4 class="card-title" style="min-height:50px;max-height:50px;">{{p.Name}}</h4>
+                                <div><span class="font-weight-bold">Species :</span>{{p.Species.Name}}</div>
+                                <div><span class="font-weight-bold">Habitat :</span>{{p.Habitat.Name}}</div>
+                                <div>
+                                    <span class="font-weight-bold">PokeTypes :</span>
+                                    <span v-for="t in p.PokeTypes" V-if="p.PokeTypes.length > 1">{{t.Name}}/</span>
+                                    <span v-for="t in p.PokeTypes" V-else>{{t.Name}} </span>
+                                </div>
+                                <div><span class="font-weight-bold"></span>{{p.PokemonId}}</div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        let pokemonsApp = new Vue({
+            el: 'div#app',   //sélectionne le div dont le id est app (plus haut)
+            data: function () {  //définit les données de la vue.  Dans ce cas-ci, un tableau de pokemons, habitats, espèces (species) et poketypes
+                return {
+                    Pokemons: null,
+                    Habitats: null,
+                    Species: null,
+                    PokeTypes: null
+                }
+            },
+            methods: {
+                //Met à jour les données de la propriété data.Pokemons
+                RefreshDataPokemons: function () {
+                    //récupérer les valeurs dans les select
+                    h = document.getElementById("habitat").value;
+                    s = document.getElementById("species").value;
+                    p = document.getElementById("poketypes").value;
+
+                    fetch(`http://pokedexapi.sv55.cmaisonneuve.qc.ca/api/pokemons?HabitatID=${h}&SpeciesID=${s}&PokeTypeID=${p}`)
+                        .then((response) => {
+                            if (!response.ok) {
+                                console.log(response);
+                            }
+                            return response.json();
+                        }).then((data) => {
+                            console.log(data);
+                            this.Pokemons = data
+                        });
+                },
+
+                //Met à jour les données de la propriété data.PokeTypes
+                RefreshDataPokeTypes: function () {
+                    fetch('http://pokedexapi.sv55.cmaisonneuve.qc.ca/api/poketypes')
+                        .then((response) => {
+                            if (!response.ok) {
+                                console.log(response);
+                            }
+                            return response.json();
+                        }).then((data) => {
+                            console.log(data);
+                            this.PokeTypes = data;
+                        });
+                },
+
+                //Met à jour les données de la propriété data.Habitats
+                RefreshDataHabitats: function () {
+                    fetch('http://pokedexapi.sv55.cmaisonneuve.qc.ca/api/habitats')
+                        .then((response) => {
+                            if (!response.ok) {
+                                console.log(response);
+                            }
+                            return response.json();
+                        }).then((data) => {
+                            console.log(data);
+                            this.Habitats = data;
+                        });
+                },
+
+                //Met à jour les données de la propriété data.Species
+                RefreshDataSpecies: function () {
+                    fetch('http://pokedexapi.sv55.cmaisonneuve.qc.ca/api/species')
+                        .then((response) => {
+                            if (!response.ok) {
+                                console.log(response);
+                            }
+                            return response.json();
+                        }).then((data) => {
+                            console.log(data);
+                            this.Species = data;
+                        });
+                },
+            },
+            mounted: function () {
+                this.RefreshDataHabitats();
+                this.RefreshDataPokeTypes();
+                this.RefreshDataPokemons();
+                this.RefreshDataSpecies();
+            }
+        });
+    </script>
+</body>
+</html>
